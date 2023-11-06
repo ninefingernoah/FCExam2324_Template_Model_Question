@@ -4,8 +4,8 @@ class ExamContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Category>()
-            .HasOne<Category>(_ => _.MainCategory)
-            .WithMany()
+            .HasOne<MainCategory>(_ => _.MainCategory)
+            .WithMany(mc => mc.SubCategories)
             .HasForeignKey(_ => _.CategoryID)
             .OnDelete(DeleteBehavior.Cascade);
 
@@ -21,7 +21,13 @@ class ExamContext : DbContext
             .HasOne<Customer>(_ => _.Customer)
             .WithMany()
             .HasForeignKey(_ => _.CustomerID)
-            .OnDelete(DeleteBehavior.Cascade);    
+            .OnDelete(DeleteBehavior.Cascade); 
+
+        modelBuilder.Entity<Order>()
+            .HasOne<Employee>(_ => _.Employee)
+            .WithMany()
+            .HasForeignKey(_ => _.EmployeeID)
+            .OnDelete(DeleteBehavior.Cascade); 
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -30,16 +36,38 @@ class ExamContext : DbContext
     }
 
     public DbSet<Category> Categories { get; set; } = null!;
+    public DbSet<MainCategory> MainCategories { get; set; } = null!;
     public DbSet<FoodItem> FoodItems { get; set; } = null!;
     public DbSet<Customer> Customers { get; set; } = null!;
     public DbSet<Order> Orders { get; set; } = null!;
+    public DbSet<Employee> Employees { get;  set; } = null!;
+}
+
+
+class Employee
+{
+    public int ID { get; set; }
+    [DataType("varchar(50)")]
+    public string Name { get; set; } = null!;
+
+    public Employee(int id, string name) {
+        ID = id;
+        Name = name;
+    }
+}
+
+class MainCategory
+{
+    public int ID { get; set; }  //Convention
+    public string Name { get; set; } = null!;
+    public List<Category> SubCategories { get; set; } = null!;
 }
 
 class Category
 {
     public int ID { get; set; }  //Convention
     public string Name { get; set; } = null!;
-    public Category? MainCategory { get; set; }
+    public MainCategory? MainCategory { get; set; }
     public int? CategoryID { get; set; }
 
     //Constructors
@@ -87,4 +115,8 @@ class Order
     public int FoodItemID { get; set; }
 
     public int Quantity { get; set; }
+
+    public Employee? Employee { get; set; }
+    public int EmployeeID { get; set; }
 }
+
