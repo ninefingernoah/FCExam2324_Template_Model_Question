@@ -50,6 +50,7 @@ class Employee
     [DataType("varchar(50)")]
     public string Name { get; set; } = null!;
 
+    public Employee() {}
     public Employee(int id, string name) {
         ID = id;
         Name = name;
